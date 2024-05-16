@@ -20,8 +20,11 @@ for (let i = 0; i < collisions.length; i += 70) {
 const boundaries = [];
 const offset = {
   x: -735,
-  y: -595,
+  y: -615,
 };
+
+const MOVEOFFSET = 3;
+
 collisionsMap.forEach((row, i) => {
   row.forEach((val, j) => {
     if (val === 1025) {
@@ -43,71 +46,153 @@ const keys = {
   s: { pressed: false },
   d: { pressed: false },
 };
-const img = new Image();
-img.src = "./img/Pellet Town.png";
 
-const playerImage = new Image();
-playerImage.src = "./img/playerDown.png";
+const backgroundImage = new Image();
+backgroundImage.src = "./img/Pellet Town.png";
+
+const foregroundImage = new Image();
+foregroundImage.src = "./img/foregroundObjects.png";
+
+const playerImages = {
+  up: new Image(),
+  down: new Image(),
+  left: new Image(),
+  right: new Image(),
+};
+playerImages.up.src = "./img/playerUp.png";
+playerImages.down.src = "./img/playerDown.png";
+playerImages.left.src = "./img/playerLeft.png";
+playerImages.right.src = "./img/playerRight.png";
 
 const bg = new Sprite({
   pos: {
-    x: -735,
-    y: -595,
+    x: offset.x,
+    y: offset.y,
   },
-  img: img,
+  img: backgroundImage,
+});
+
+const foreground = new Sprite({
+  pos: {
+    x: offset.x,
+    y: offset.y,
+  },
+  img: foregroundImage,
 });
 
 const player = new Sprite({
   pos: {
-    x: center.x - playerImage.width / 8,
-    y: center.y - playerImage.height / 2,
+    x: center.x - playerImages.down.width / 8,
+    y: center.y - playerImages.down.height / 2,
   },
-  img: playerImage,
+  img: playerImages.down,
   frames: {
     max: 4,
   },
+  sprites: { ...playerImages },
 });
+
+const colliding = ({ obj1, obj2 }) => {
+  return (
+    obj1.pos.x + obj1.width >= obj2.pos.x &&
+    obj1.pos.x <= obj2.pos.x + obj2.width &&
+    obj1.pos.y <= obj2.pos.y + obj2.height &&
+    obj1.pos.y + obj1.height >= obj2.pos.y
+  );
+};
+
+const movables = [bg, ...boundaries, foreground];
 
 function animate() {
   window.requestAnimationFrame(animate);
 
   bg.draw();
+  boundaries.forEach((b) => b.draw());
   player.draw();
+  foreground.draw();
 
-  // draw boundaries (TESTING)
-  boundaries.forEach((boundary) => {
-    boundary.draw();
-  });
+  let moving = true;
+  player.moving = false;
 
   if (keys.w.pressed && lastKey === "w") {
-    bg.pos.y += 12;
-    boundaries.forEach((boundary) => {
-      boundary.pos.y += 12;
-    });
-    keys.w.pressed = false;
+    player.moving = true;
+    player.img = player.sprites.up;
+    for (const b of boundaries) {
+      if (
+        colliding({
+          obj1: player,
+          obj2: { ...b, pos: { ...b.pos, y: b.pos.y + MOVEOFFSET } },
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
+
+    if (moving)
+      movables.forEach((obj) => {
+        obj.pos.y += MOVEOFFSET;
+      });
   }
   if (keys.a.pressed && lastKey === "a") {
-    bg.pos.x += 12;
-    boundaries.forEach((boundary) => {
-      boundary.pos.x += 12;
-    });
-    keys.a.pressed = false;
+    player.moving = true;
+    player.img = player.sprites.left;
+    for (const b of boundaries) {
+      if (
+        colliding({
+          obj1: player,
+          obj2: { ...b, pos: { ...b.pos, x: b.pos.x + MOVEOFFSET } },
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
+
+    if (moving)
+      movables.forEach((obj) => {
+        obj.pos.x += MOVEOFFSET;
+      });
   }
   if (keys.s.pressed && lastKey === "s") {
-    bg.pos.y -= 12;
-    boundaries.forEach((boundary) => {
-      boundary.pos.y -= 12;
-    });
+    player.moving = true;
+    player.img = player.sprites.down;
+    for (const b of boundaries) {
+      if (
+        colliding({
+          obj1: player,
+          obj2: { ...b, pos: { ...b.pos, y: b.pos.y - MOVEOFFSET } },
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
 
-    keys.s.pressed = false;
+    if (moving)
+      movables.forEach((obj) => {
+        obj.pos.y -= MOVEOFFSET;
+      });
   }
   if (keys.d.pressed && lastKey === "d") {
-    bg.pos.x -= 12;
-    boundaries.forEach((boundary) => {
-      boundary.pos.x -= 12;
-    });
+    player.moving = true;
+    player.img = player.sprites.right;
+    for (const b of boundaries) {
+      if (
+        colliding({
+          obj1: player,
+          obj2: { ...b, pos: { ...b.pos, x: b.pos.x - MOVEOFFSET } },
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
 
-    keys.d.pressed = false;
+    if (moving)
+      movables.forEach((obj) => {
+        obj.pos.x -= MOVEOFFSET;
+      });
   }
 }
 animate();
@@ -119,8 +204,12 @@ window.addEventListener("keydown", (e) => {
   if (key in keys) {
     keys[key].pressed = true;
     lastKey = key;
-    console.log(key);
   }
 });
 
+window.addEventListener("keyup", (e) => {
+  const key = e.key;
+
+  if (key in keys) keys[key].pressed = false;
+});
 export { c };
