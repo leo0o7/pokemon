@@ -1,6 +1,7 @@
 import { Boundary, Sprite } from "./classes.js";
 import { collisions } from "./data/collisions.js";
 
+// setup canvas
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
 
@@ -12,12 +13,6 @@ c.fillRect(0, 0, canvas.width, canvas.height);
 
 const center = { x: canvas.width / 2, y: canvas.height / 2 };
 
-const collisionsMap = [];
-for (let i = 0; i < collisions.length; i += 70) {
-  collisionsMap.push(collisions.slice(i, 70 + i));
-}
-
-const boundaries = [];
 const offset = {
   x: -735,
   y: -615,
@@ -25,7 +20,15 @@ const offset = {
 
 const MOVEOFFSET = 3;
 
-collisionsMap.forEach((row, i) => {
+// get collisions
+const collisionsArr = [];
+for (let i = 0; i < collisions.length; i += 70) {
+  collisionsArr.push(collisions.slice(i, 70 + i));
+}
+
+// create boundaries
+const boundaries = [];
+collisionsArr.forEach((row, i) => {
   row.forEach((val, j) => {
     if (val === 1025) {
       boundaries.push(
@@ -40,13 +43,7 @@ collisionsMap.forEach((row, i) => {
   });
 });
 
-const keys = {
-  w: { pressed: false },
-  a: { pressed: false },
-  s: { pressed: false },
-  d: { pressed: false },
-};
-
+// create images for sprites
 const backgroundImage = new Image();
 backgroundImage.src = "./img/Pellet Town.png";
 
@@ -64,6 +61,15 @@ playerImages.down.src = "./img/playerDown.png";
 playerImages.left.src = "./img/playerLeft.png";
 playerImages.right.src = "./img/playerRight.png";
 
+// key object for event listener
+const keys = {
+  w: { pressed: false },
+  a: { pressed: false },
+  s: { pressed: false },
+  d: { pressed: false },
+};
+
+// create sprites
 const bg = new Sprite({
   pos: {
     x: offset.x,
@@ -92,6 +98,7 @@ const player = new Sprite({
   sprites: { ...playerImages },
 });
 
+// check if obj1 is colliding with obj2
 const colliding = ({ obj1, obj2 }) => {
   return (
     obj1.pos.x + obj1.width >= obj2.pos.x &&
@@ -101,6 +108,7 @@ const colliding = ({ obj1, obj2 }) => {
   );
 };
 
+// array of movables objects
 const movables = [bg, ...boundaries, foreground];
 
 function animate() {
@@ -197,6 +205,7 @@ function animate() {
 }
 animate();
 
+// check for key press and set movement on keydown (animate)
 let lastKey = "";
 window.addEventListener("keydown", (e) => {
   const key = e.key;
@@ -207,6 +216,7 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
+// reset on key up
 window.addEventListener("keyup", (e) => {
   const key = e.key;
 
