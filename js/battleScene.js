@@ -1,5 +1,6 @@
 import { Sprite } from "./classes.js";
-import { c } from "./index.js";
+import { attacks } from "./data/attacks.js";
+
 export const battleBackgroundImage = new Image();
 battleBackgroundImage.src = "./img/battleBackground.png";
 const battleBackground = new Sprite({
@@ -44,7 +45,7 @@ const emby = new Sprite({
 });
 
 const renderedSprites = [draggle, emby];
-function animateBattle() {
+export function animateBattle() {
   window.requestAnimationFrame(animateBattle);
   battleBackground.draw();
 
@@ -53,12 +54,11 @@ function animateBattle() {
   });
 }
 
-//animate();
-animateBattle();
+// animate();
 
 document.querySelectorAll("button").forEach((button) => {
   button.addEventListener("click", (e) => {
-    const selectedAttack = atttacks[e.currentTarget.innerHTML];
+    const selectedAttack = attacks[e.currentTarget.innerHTML];
     console.log(selectedAttack);
     emby.attack({
       attack: selectedAttack,

@@ -1,4 +1,4 @@
-export const atttacks = {
+export const attacks = {
   Tackle: {
     name: "Tackle",
     damage: 10,

@@ -1,7 +1,6 @@
 import { Boundary, Sprite } from "./classes.js";
 import { collisions } from "./data/collisions.js";
-import { atttacks } from "./data/attacks.js";
-import { battleBackgroundImage } from "./battleScene.js";
+import { animateBattle } from "./battleScene.js";
 import { battleZones } from "./data/battleZone.js";
 
 console.log(gsap);
@@ -176,8 +175,6 @@ function animate() {
         overlappingArea > (player.width * player.height) / 2 &&
         Math.random() < 0.01
       ) {
-        console.log("ciao");
-
         //disattivazione animazione
         window.cancelAnimationFrame(animate);
 
@@ -289,6 +286,7 @@ function animate() {
   }
 }
 //animate();
+animateBattle();
 
 // check for key press and set movement on keydown (animate)
 let lastKey = "";
@@ -307,4 +305,3 @@ window.addEventListener("keyup", (e) => {
 
   if (key in keys) keys[key].pressed = false;
 });
-//export { c };
