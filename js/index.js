@@ -298,7 +298,8 @@ export function animate() {
   }
 }
 
-//animate();
+// animate();
+initBattle();
 animateBattle();
 
 // check for key press and set movement on keydown (animate)
