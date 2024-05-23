@@ -1,4 +1,5 @@
 import { c } from "./index.js";
+import {} from "./battleScene.js";
 
 export class Sprite {
   constructor({
@@ -7,24 +8,19 @@ export class Sprite {
     frames = { max: 1, hold: 10 },
     sprites,
     animate = false,
-    isEnemy = false,
-    name,
   }) {
     this.pos = pos;
-    this.img = img;
+    this.img = new Image();
     this.frames = { ...frames, val: 0, elapsed: 0 };
-
     this.img.onload = () => {
       this.width = this.img.width / this.frames.max;
       this.height = this.img.height;
     };
+    this.img.src = img.src;
 
     this.animate = animate;
     this.sprites = sprites;
     this.opacity = 1;
-    this.health = 100;
-    this.isEnemy = isEnemy;
-    this.name = name;
   }
   draw() {
     c.save();
@@ -50,14 +46,52 @@ export class Sprite {
       else this.frames.val = 0;
     }
   }
+}
+export class Monster extends Sprite {
+  constructor({
+    pos,
+    img,
+    frames = { max: 1, hold: 10 },
+    sprites,
+    animate = false,
+
+    isEnemy = false,
+    name,
+    attacks,
+  }) {
+    super({
+      pos,
+      img,
+      frames,
+      sprites,
+      animate,
+    });
+
+    this.health = 100;
+    this.isEnemy = isEnemy;
+    this.name = name;
+    this.attacks = attacks;
+  }
+
+  faint() {
+    document.querySelector("#dialogueBox").innerHTML =
+      this.name + " " + "fainted!!";
+    gsap.to(this.pos, {
+      y: this.pos.y + 20,
+    });
+    gsap.to(this, {
+      opacity: 0,
+    });
+  }
+
   attack({ attack, recipient, renderedSprites }) {
     document.querySelector("#dialogueBox").style.display = "block";
     document.querySelector("#dialogueBox").innerHTML =
-      this.name + "used" + attack.name;
+      this.name + " " + "used" + " " + attack.name;
     let healthBar = "#enemyHealtBar";
     if (this.isEnemy) healthBar = "#playerHealtBar";
 
-    this.health -= attack.damage;
+    recipient.health -= attack.damage;
 
     switch (attack.name) {
       case "Fireball":
@@ -84,7 +118,7 @@ export class Sprite {
           y: recipient.pos.y,
           onComplete: () => {
             gsap.to(healthBar, {
-              width: this.health + "%",
+              width: recipient.health + "%",
             });
 
             gsap.to(recipient.pos, {
@@ -118,7 +152,7 @@ export class Sprite {
             duration: 0.1,
             onComplete: () => {
               gsap.to(healthBar, {
-                width: this.health + "%",
+                width: recipient.health + "%",
               });
 
               gsap.to(recipient.pos, {

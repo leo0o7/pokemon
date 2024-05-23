@@ -2,6 +2,7 @@ import { Boundary, Sprite } from "./classes.js";
 import { collisions } from "./data/collisions.js";
 import { animateBattle } from "./battleScene.js";
 import { battleZones } from "./data/battleZone.js";
+import { initBattle } from "./battleScene.js";
 
 console.log(gsap);
 
@@ -68,6 +69,16 @@ battleZonesMap.forEach((row, i) => {
       );
     }
   });
+});
+
+const battleBackgroundImage = new Image();
+battleBackgroundImage.src = "./img/battleBackground.png";
+export const battleBackground = new Sprite({
+  pos: {
+    x: 0,
+    y: 0,
+  },
+  img: battleBackgroundImage,
 });
 
 // create images for sprites
@@ -143,7 +154,7 @@ const battle = {
   initiated: false,
 };
 
-function animate() {
+export function animate() {
   const animationId = window.requestAnimationFrame(animate);
 
   bg.draw();
@@ -190,6 +201,7 @@ function animate() {
               duration: 0.4,
               onComplete() {
                 //attivazione nuova animazione
+                initBattle();
                 animateBattle();
                 gsap.to("#overlappingDiv", {
                   opacity: 0,
@@ -285,6 +297,7 @@ function animate() {
       });
   }
 }
+
 //animate();
 animateBattle();
 

@@ -51,9 +51,15 @@ button:hover{
           left: 0;
           opacity: 0;
           pointer-events: none;
+          z-index: 10;
         "
       ></div>
-            <!-- Barra salute  sinistra-->
+            
+      <canvas></canvas>
+
+      <div id="userInterface">
+
+      <!-- Barra salute  sinistra-->
       <div style="background-color: white; width: 250px; position: absolute; top: 50px;left: 50px; border: 4px black solid; padding: 12px;">
         <h1 style="font-size: 16px;">
           Draggle
@@ -73,7 +79,7 @@ button:hover{
           <div id="playerHealtBar" style="height: 5px; background-color: green; margin-top: 10px; position: absolute; top: 0; left: 0; right: 0;"></div>
         </div>
           </div>
-      <canvas></canvas>
+
       <div
         style="
           background-color: white;
@@ -86,10 +92,9 @@ button:hover{
           display: flex;
         "
       >
-      <div id="dialogueBox" style=" position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-color:white ; padding: 12px; display: none;"></div>
-        <div style="width: 66.66%; display: grid; grid-template-columns: repeat(2, 1fr);">
-          <button>Tackle</button>
-          <button>Fireball</button>
+      <div id="dialogueBox" style=" position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-color:white ; padding: 12px; display: none; cursor: pointer;"></div>
+        <div id="attacksBox" style="width: 66.66%; display: grid; grid-template-columns: repeat(2, 1fr);">
+         
 
         </div>
         <div style=
@@ -99,9 +104,10 @@ button:hover{
         width: 33.33%;
         border-left: 4px solid black;"
         >
-          <h1 style="font-size: 16px;">Attack type</h1>
+          <h1 id="attackType" style="font-size: 16px;">Attack type</h1>
         </div>
       </div>
+    </div>
     </div>
   </body>
 </html>
