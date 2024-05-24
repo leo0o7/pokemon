@@ -14,7 +14,7 @@ const battleZonesMap = [];
 for (let i = 0; i < battleZones.length; i += 70) {
   battleZonesMap.push(battleZones.slice(i, 70 + i));
 }
-console.log(battleZonesMap);
+// console.log(battleZonesMap);
 
 canvas.width = 1024;
 canvas.height = 576;
@@ -150,7 +150,7 @@ const colliding = ({ obj1, obj2 }) => {
 // array of movables objects
 const movables = [bg, ...boundaries, foreground, ...battleZonesArr];
 
-const battle = {
+export const battle = {
   initiated: false,
 };
 
@@ -184,10 +184,10 @@ export function animate() {
           obj2: { ...b, pos: { ...b.pos, y: b.pos.y + MOVEOFFSET } },
         }) &&
         overlappingArea > (player.width * player.height) / 2 &&
-        Math.random() < 0.01
+        Math.random() < 0.025
       ) {
         //disattivazione animazione
-        window.cancelAnimationFrame(animate);
+        window.cancelAnimationFrame(animationId);
 
         battle.initiated = true;
         gsap.to("#overlappingDiv", {
@@ -298,9 +298,9 @@ export function animate() {
   }
 }
 
-// animate();
-initBattle();
-animateBattle();
+animate();
+// initBattle();
+// animateBattle();
 
 // check for key press and set movement on keydown (animate)
 let lastKey = "";

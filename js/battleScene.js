@@ -1,8 +1,7 @@
-import { Sprite } from "./classes.js";
 import { attacks } from "./data/attacks.js";
 import { monsters } from "./data/monsters.js";
 import { Monster } from "./classes.js";
-import { animate, battleBackground } from "./index.js";
+import { animate, battle, battleBackground } from "./index.js";
 
 let draggle;
 let emby;
@@ -17,7 +16,7 @@ export function initBattle() {
   document.querySelector("#playerHealthBar").style.width = "100%";
   document.querySelector("#attacksBox").replaceChildren();
 
-  draggle = new Monster(monsters.Draggle);
+  draggle = new Monster({ ...monsters.Draggle, pos: { x: 800, y: 100 } });
   emby = new Monster(monsters.Emby);
   renderedSprites = [draggle, emby];
   queue = [];
@@ -30,12 +29,15 @@ export function initBattle() {
   document.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", (e) => {
       const selectedAttack = attacks[e.currentTarget.innerHTML];
-      console.log(selectedAttack);
+      //  console.log(selectedAttack);
+
+      // attack
       emby.attack({
         attack: selectedAttack,
         recipient: draggle,
         renderedSprites,
       });
+      console.log(draggle.health);
 
       if (draggle.health <= 0) {
         queue.push(() => {
@@ -111,5 +113,20 @@ document.querySelector("#dialogueBox").addEventListener("click", (e) => {
   if (queue.length > 0) {
     queue[0]();
     queue.shift();
+    // instantly executed function
+    (function () {
+      // disable buttons
+      document.querySelectorAll("button").forEach((button) => {
+        button.disabled = true;
+      });
+      // re enable buttons after a second
+      setTimeout(
+        () =>
+          document
+            .querySelectorAll("button")
+            .forEach((button) => (button.disabled = false)),
+        1000
+      );
+    })();
   } else e.currentTarget.style.display = "none";
 });

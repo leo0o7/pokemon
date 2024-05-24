@@ -88,8 +88,8 @@ export class Monster extends Sprite {
     document.querySelector("#dialogueBox").style.display = "block";
     document.querySelector("#dialogueBox").innerHTML =
       this.name + " " + "used" + " " + attack.name;
-    let healthBar = "#enemyHealtBar";
-    if (this.isEnemy) healthBar = "#playerHealtBar";
+    let healthBar = "#enemyHealthBar";
+    if (this.isEnemy) healthBar = "#playerHealthBar";
 
     recipient.health -= attack.damage;
 
@@ -110,15 +110,15 @@ export class Monster extends Sprite {
           animate: true,
         });
 
-        renderedSprites.push(fireball);
-        console.log(renderedSprites);
+        renderedSprites.splice(1, 0, fireball);
+        // console.log(renderedSprites);
 
         gsap.to(fireball.pos, {
           x: recipient.pos.x,
           y: recipient.pos.y,
           onComplete: () => {
             gsap.to(healthBar, {
-              width: recipient.health + "%",
+              width: recipient.health >= 0 ? recipient.health + "%" : 0 + "%",
             });
 
             gsap.to(recipient.pos, {
@@ -133,7 +133,7 @@ export class Monster extends Sprite {
               yoyo: true,
               duration: 0.08,
             }),
-              renderedSprites.pop();
+              renderedSprites.splice(1, 1);
           },
         });
 
@@ -187,7 +187,7 @@ export class Boundary {
   }
 
   draw() {
-    c.fillStyle = "rgba(255, 0, 0, 0.5)";
+    c.fillStyle = "rgba(255, 0, 0, 0.0)";
     c.fillRect(this.pos.x, this.pos.y, this.width, this.height);
   }
 }
