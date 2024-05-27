@@ -25,8 +25,8 @@ c.fillRect(0, 0, canvas.width, canvas.height);
 const center = { x: canvas.width / 2, y: canvas.height / 2 };
 
 const offset = {
-  x: -735,
-  y: -615,
+  x: -715,
+  y: -580,
 };
 
 const MOVEOFFSET = 3;
