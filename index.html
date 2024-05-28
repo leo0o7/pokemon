@@ -3,111 +3,70 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pokemon</title>
-    <script src="./js/index.js" type="module" defer></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"
-      integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Benvenuto al gioco!</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
   </head>
-<style>
-  *{
-    font-family: "Press Start 2P", cursive;
-    font-weight: 400;
-    font-style: normal;
-}
 
- body{
-  background-color: black;
- }
- h1{
-  margin: 0;
- }
-button{
-  border: 0;
-  cursor: pointer;
-  font-size: 16px;
-}
-button:hover{
-  background-color: #ddd;
-}
-
-  </style>
-    <div style="display: inline-block; position: relative">
-      <div
-        id="overlappingDiv"
-        style="
-          background-color: black;
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          opacity: 0;
-          pointer-events: none;
-          z-index: 10;
-        "
-      ></div>
-            
-      <canvas></canvas>
-
-      <div id="userInterface" style="display: none;">
-
-      <!-- Barra salute  sinistra-->
-      <div style="background-color: white; width: 250px; position: absolute; top: 50px;left: 50px; border: 4px black solid; padding: 12px;">
-        <h1 style="font-size: 16px;">
-          Draggle
-        </h1>
-      <div style="position: relative;">
-        <div style="height: 5px; background-color: #ccc; margin-top: 10px;"></div>
-        <div id="enemyHealthBar" style="height: 5px; background-color: green; margin-top: 10px; position: absolute; top: 0; left: 0; right: 0;"></div>
+  <body id="body">
+    <main>
+      <div id="Contenitore">
+        <img src="./img/PokemonHill.png" />
       </div>
-        </div>
-         <!-- Barra salute  destra-->
-         <div style="background-color: white; width: 250px; position: absolute; top: 330px; right: 50px; border: 4px black solid; padding: 12px;">
-          <h1 style="font-size: 16px;">
-            Emby
-          </h1>
-        <div style="position: relative;">
-          <div style="height: 5px; background-color: #ccc; margin-top: 10px;"></div>
-          <div id="playerHealthBar" style="height: 5px; background-color: green; margin-top: 10px; position: absolute; top: 0; left: 0; right: 0;"></div>
-        </div>
-          </div>
-
-      <div
-        style="
-          background-color: white;
-          height: 140px;
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          border-top: 4px black solid;
-          display: flex;
-        "
-      >
-      <div id="dialogueBox" style=" position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-color:white ; padding: 12px; display: none; cursor: pointer;"></div>
-        <div id="attacksBox" style="width: 66.66%; display: grid; grid-template-columns: repeat(2, 1fr);">
-         
-
-        </div>
-        <div style=
-        "display: flex; 
+      <h2>
+        Premi il tasto
+        <span id="spacebar">
+          <img
+            src="https://raw.githubusercontent.com/q2apro/keyboard-keys-speedflips/26cb04c984840f1261d59f9eb68ab744c94aa86b/single-keys-bordered/svg/spacebar.svg"
+          />
+        </span>
+        per iniziare la tua partita
+      </h2>
+    </main>
+    <script>
+      document.body.addEventListener("keydown", function (event) {
+        if (event.key == "Enter") window.location.replace("game.html");
+      });
+      document.body.addEventListener("click", function (event) {
+        window.location.replace("game.html");
+      });
+    </script>
+    <style>
+      * {
+        font-family: "Press Start 2P", cursive;
+        font-size: 1rem;
+        font-weight: 400;
+        font-style: normal;
+      }
+      h2 {
+        color: #ffedd5;
+        -webkit-text-stroke-width: 0.9px;
+        -webkit-text-stroke-color: black;
+      }
+      #spacebar img {
+        height: 1rem;
+      }
+      main {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 33.33%;
-        border-left: 4px solid black;"
-        >
-          <h1 id="attackType" style="font-size: 16px;">Attack type</h1>
-        </div>
-      </div>
-    </div>
-    </div>
+        gap: 5rem;
+        background-color: rgb(0, 0, 0, 0.6);
+      }
+      #body {
+        background-image: url(img/BlurredPelletTown.jpg);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </body>
 </html>
