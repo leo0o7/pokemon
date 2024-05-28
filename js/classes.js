@@ -1,5 +1,6 @@
 import { c } from "./index.js";
 import {} from "./battleScene.js";
+import { audio } from "./audio.js";
 
 export class Sprite {
   constructor({
@@ -82,6 +83,9 @@ export class Monster extends Sprite {
     gsap.to(this, {
       opacity: 0,
     });
+
+    audio.battle.stop();
+    audio.victory.play();
   }
 
   attack({ attack, recipient, renderedSprites }) {
@@ -95,6 +99,7 @@ export class Monster extends Sprite {
 
     switch (attack.name) {
       case "Fireball":
+        audio.initFireball.play();
         const fireballImage = new Image();
         fireballImage.src = "./img/fireball.png";
         const fireball = new Sprite({
@@ -111,12 +116,12 @@ export class Monster extends Sprite {
         });
 
         renderedSprites.splice(1, 0, fireball);
-        // console.log(renderedSprites);
 
         gsap.to(fireball.pos, {
           x: recipient.pos.x,
           y: recipient.pos.y,
           onComplete: () => {
+            audio.fireballHit.play();
             gsap.to(healthBar, {
               width: recipient.health >= 0 ? recipient.health + "%" : 0 + "%",
             });
@@ -151,6 +156,7 @@ export class Monster extends Sprite {
             x: this.pos.x + movementDistance * 2,
             duration: 0.1,
             onComplete: () => {
+              audio.tackleHit.play();
               gsap.to(healthBar, {
                 width: recipient.health + "%",
               });
@@ -189,5 +195,33 @@ export class Boundary {
   draw() {
     c.fillStyle = "rgba(255, 0, 0, 0.0)";
     c.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+  }
+}
+
+export class Character extends Sprite {
+  constructor({
+    pos,
+    velocity,
+    img,
+    frames = { max: 1, hold: 10 },
+    sprites,
+    animate = false,
+    rotation = 0,
+    scale = 1,
+    dialogue = [""],
+  }) {
+    super({
+      pos,
+      velocity,
+      img,
+      frames,
+      sprites,
+      animate,
+      rotation,
+      scale,
+    });
+
+    this.dialogue = dialogue;
+    this.dialogueIndex = 0;
   }
 }

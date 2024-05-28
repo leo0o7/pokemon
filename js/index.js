@@ -1,20 +1,14 @@
-import { Boundary, Sprite } from "./classes.js";
+import { Boundary, Character, Sprite } from "./classes.js";
 import { collisions } from "./data/collisions.js";
 import { animateBattle } from "./battleScene.js";
 import { battleZones } from "./data/battleZone.js";
 import { initBattle } from "./battleScene.js";
-
-console.log(gsap);
+import { audio } from "./audio.js";
+import { charactersMapData } from "./characters.js";
 
 // setup canvas
 const canvas = document.querySelector("canvas");
 export const c = canvas.getContext("2d");
-
-const battleZonesMap = [];
-for (let i = 0; i < battleZones.length; i += 70) {
-  battleZonesMap.push(battleZones.slice(i, 70 + i));
-}
-// console.log(battleZonesMap);
 
 canvas.width = 1024;
 canvas.height = 576;
@@ -25,17 +19,27 @@ c.fillRect(0, 0, canvas.width, canvas.height);
 const center = { x: canvas.width / 2, y: canvas.height / 2 };
 
 const offset = {
-  x: -715,
-  y: -580,
+  x: -735,
+  y: -620,
 };
 
-const MOVEOFFSET = 3;
+const battleZonesMap = [];
+for (let i = 0; i < battleZones.length; i += 70) {
+  battleZonesMap.push(battleZones.slice(i, 70 + i));
+}
 
 // get collisions
 const collisionsArr = [];
 for (let i = 0; i < collisions.length; i += 70) {
   collisionsArr.push(collisions.slice(i, 70 + i));
 }
+
+const charactersArr = [];
+for (let i = 0; i < charactersMapData.length; i += 70) {
+  charactersArr.push(charactersMapData.slice(i, 70 + i));
+}
+
+const MOVEOFFSET = 3;
 
 // create boundaries
 const boundaries = [];
@@ -71,23 +75,25 @@ battleZonesMap.forEach((row, i) => {
   });
 });
 
-const battleBackgroundImage = new Image();
-battleBackgroundImage.src = "./img/battleBackground.png";
-export const battleBackground = new Sprite({
-  pos: {
-    x: 0,
-    y: 0,
-  },
-  img: battleBackgroundImage,
-});
+// key object for event listener
+const keys = {
+  w: { pressed: false },
+  a: { pressed: false },
+  s: { pressed: false },
+  d: { pressed: false },
+};
 
 // create images for sprites
+const villagerImg = new Image();
+villagerImg.src = "./img/villager/Idle.png";
+const oldManImg = new Image();
+oldManImg.src = "./img/oldMan/Idle.png";
+const battleBackgroundImage = new Image();
+battleBackgroundImage.src = "./img/battleBackground.png";
 const backgroundImage = new Image();
 backgroundImage.src = "./img/Pellet Town.png";
-
 const foregroundImage = new Image();
 foregroundImage.src = "./img/foregroundObjects.png";
-
 const playerImages = {
   up: new Image(),
   down: new Image(),
@@ -99,14 +105,6 @@ playerImages.down.src = "./img/playerDown.png";
 playerImages.left.src = "./img/playerLeft.png";
 playerImages.right.src = "./img/playerRight.png";
 
-// key object for event listener
-const keys = {
-  w: { pressed: false },
-  a: { pressed: false },
-  s: { pressed: false },
-  d: { pressed: false },
-};
-
 // create sprites
 const bg = new Sprite({
   pos: {
@@ -115,7 +113,6 @@ const bg = new Sprite({
   },
   img: backgroundImage,
 });
-
 const foreground = new Sprite({
   pos: {
     x: offset.x,
@@ -123,7 +120,6 @@ const foreground = new Sprite({
   },
   img: foregroundImage,
 });
-
 const player = new Sprite({
   pos: {
     x: center.x - playerImages.down.width / 8,
@@ -137,6 +133,53 @@ const player = new Sprite({
   sprites: { ...playerImages },
 });
 
+export const battleBackground = new Sprite({
+  pos: {
+    x: 0,
+    y: 0,
+  },
+  img: battleBackgroundImage,
+});
+
+const characters = [];
+charactersArr.forEach((row, i) => {
+  row.forEach((val, j) => {
+    if (val === 1026)
+      characters.push(
+        new Character({
+          pos: {
+            x: j * Boundary.width + offset.x,
+            y: i * Boundary.height + offset.y,
+          },
+          img: villagerImg,
+          frames: {
+            max: 4,
+            hold: 60,
+          },
+          scale: 3,
+          animate: true,
+          dialogue: ["...", "Hey mister, have you seen my Doggochu?"],
+        })
+      );
+    else if (val === 1031)
+      characters.push(
+        new Character({
+          pos: {
+            x: j * Boundary.width + offset.x,
+            y: i * Boundary.height + offset.y,
+          },
+          img: oldManImg,
+          frames: {
+            max: 4,
+            hold: 60,
+          },
+          scale: 3,
+          dialogue: ["...", "My bones hurt."],
+        })
+      );
+  });
+});
+
 // check if obj1 is colliding with obj2
 const colliding = ({ obj1, obj2 }) => {
   return (
@@ -148,7 +191,13 @@ const colliding = ({ obj1, obj2 }) => {
 };
 
 // array of movables objects
-const movables = [bg, ...boundaries, foreground, ...battleZonesArr];
+const movables = [
+  bg,
+  ...boundaries,
+  foreground,
+  ...battleZonesArr,
+  ...characters,
+];
 
 export const battle = {
   initiated: false,
@@ -188,6 +237,10 @@ export function animate() {
       ) {
         //disattivazione animazione
         window.cancelAnimationFrame(animationId);
+
+        audio.Map.stop();
+        audio.initBattle.play();
+        audio.battle.play();
 
         battle.initiated = true;
         gsap.to("#overlappingDiv", {
@@ -318,4 +371,12 @@ window.addEventListener("keyup", (e) => {
   const key = e.key;
 
   if (key in keys) keys[key].pressed = false;
+});
+
+let clicked = false;
+addEventListener("click", () => {
+  if (!clicked) {
+    audio.Map.play();
+    clicked = true;
+  }
 });

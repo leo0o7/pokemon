@@ -17,7 +17,13 @@ export function initBattle() {
   document.querySelector("#attacksBox").replaceChildren();
 
   draggle = new Monster({ ...monsters.Draggle, pos: { x: 800, y: 100 } });
-  emby = new Monster(monsters.Emby);
+  emby = new Monster({
+    ...monsters.Emby,
+    pos: {
+      x: 280,
+      y: 325,
+    },
+  });
   renderedSprites = [draggle, emby];
   queue = [];
 
@@ -29,7 +35,6 @@ export function initBattle() {
   document.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", (e) => {
       const selectedAttack = attacks[e.currentTarget.innerHTML];
-      //  console.log(selectedAttack);
 
       // attack
       emby.attack({
@@ -55,6 +60,7 @@ export function initBattle() {
                 opacity: 0,
               });
               battle.initiated = false;
+              audio.Map.play();
             },
           });
         });
@@ -85,6 +91,7 @@ export function initBattle() {
                   opacity: 0,
                 });
                 battle.initiated = false;
+                audio.Map.play();
               },
             });
           });
