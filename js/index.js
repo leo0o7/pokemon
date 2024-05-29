@@ -1,79 +1,42 @@
-import { Boundary, Character, Sprite } from "./classes.js";
-import { collisions } from "./data/collisions.js";
+import { Sprite } from "./classes.js";
 import { animateBattle } from "./battleScene.js";
-import { battleZones } from "./data/battleZone.js";
 import { initBattle } from "./battleScene.js";
 import { audio } from "./audio.js";
-import { charactersMapData } from "./characters.js";
+import {
+  colliding,
+  getBattleZones,
+  getBoundaries,
+  getCharacters,
+  getOverlappingArea,
+} from "./utils.js";
+import {
+  backgroundImage,
+  battleBackgroundImage,
+  foregroundImage,
+  playerImages,
+} from "./data/images.js";
 
 // setup canvas
 const canvas = document.querySelector("canvas");
 export const c = canvas.getContext("2d");
-
 canvas.width = 1024;
 canvas.height = 576;
-
 c.fillStyle = "white";
 c.fillRect(0, 0, canvas.width, canvas.height);
 
-const center = { x: canvas.width / 2, y: canvas.height / 2 };
-
-const offset = {
+// create constants
+const CENTER = { x: canvas.width / 2, y: canvas.height / 2 };
+export const OFFSET = {
   x: -735,
   y: -620,
 };
-
-const battleZonesMap = [];
-for (let i = 0; i < battleZones.length; i += 70) {
-  battleZonesMap.push(battleZones.slice(i, 70 + i));
-}
-
-// get collisions
-const collisionsArr = [];
-for (let i = 0; i < collisions.length; i += 70) {
-  collisionsArr.push(collisions.slice(i, 70 + i));
-}
-
-const charactersArr = [];
-for (let i = 0; i < charactersMapData.length; i += 70) {
-  charactersArr.push(charactersMapData.slice(i, 70 + i));
-}
-
+const SPAWNRATE = 0.025;
 const MOVEOFFSET = 3;
 
-// create boundaries
-const boundaries = [];
-collisionsArr.forEach((row, i) => {
-  row.forEach((val, j) => {
-    if (val === 1025) {
-      boundaries.push(
-        new Boundary({
-          pos: {
-            x: j * Boundary.width + offset.x,
-            y: i * Boundary.height + offset.y,
-          },
-        })
-      );
-    }
-  });
-});
-
-const battleZonesArr = [];
-
-battleZonesMap.forEach((row, i) => {
-  row.forEach((val, j) => {
-    if (val === 1025) {
-      battleZonesArr.push(
-        new Boundary({
-          pos: {
-            x: j * Boundary.width + offset.x,
-            y: i * Boundary.height + offset.y,
-          },
-        })
-      );
-    }
-  });
-});
+// create arrays of movable objects
+const battleZones = getBattleZones();
+const boundaries = getBoundaries();
+const characters = getCharacters();
 
 // key object for event listener
 const keys = {
@@ -83,47 +46,25 @@ const keys = {
   d: { pressed: false },
 };
 
-// create images for sprites
-const villagerImg = new Image();
-villagerImg.src = "./img/villager/Idle.png";
-const oldManImg = new Image();
-oldManImg.src = "./img/oldMan/Idle.png";
-const battleBackgroundImage = new Image();
-battleBackgroundImage.src = "./img/battleBackground.png";
-const backgroundImage = new Image();
-backgroundImage.src = "./img/Pellet Town.png";
-const foregroundImage = new Image();
-foregroundImage.src = "./img/foregroundObjects.png";
-const playerImages = {
-  up: new Image(),
-  down: new Image(),
-  left: new Image(),
-  right: new Image(),
-};
-playerImages.up.src = "./img/playerUp.png";
-playerImages.down.src = "./img/playerDown.png";
-playerImages.left.src = "./img/playerLeft.png";
-playerImages.right.src = "./img/playerRight.png";
-
 // create sprites
 const bg = new Sprite({
   pos: {
-    x: offset.x,
-    y: offset.y,
+    x: OFFSET.x,
+    y: OFFSET.y,
   },
   img: backgroundImage,
 });
 const foreground = new Sprite({
   pos: {
-    x: offset.x,
-    y: offset.y,
+    x: OFFSET.x,
+    y: OFFSET.y,
   },
   img: foregroundImage,
 });
 const player = new Sprite({
   pos: {
-    x: center.x - playerImages.down.width / 8,
-    y: center.y - playerImages.down.height / 2,
+    x: CENTER.x - playerImages.down.width / 8,
+    y: CENTER.y - playerImages.down.height / 2,
   },
   img: playerImages.down,
   frames: {
@@ -132,7 +73,6 @@ const player = new Sprite({
   },
   sprites: { ...playerImages },
 });
-
 export const battleBackground = new Sprite({
   pos: {
     x: 0,
@@ -141,62 +81,15 @@ export const battleBackground = new Sprite({
   img: battleBackgroundImage,
 });
 
-const characters = [];
-charactersArr.forEach((row, i) => {
-  row.forEach((val, j) => {
-    if (val === 1026)
-      characters.push(
-        new Character({
-          pos: {
-            x: j * Boundary.width + offset.x,
-            y: i * Boundary.height + offset.y,
-          },
-          img: villagerImg,
-          frames: {
-            max: 4,
-            hold: 60,
-          },
-          scale: 3,
-          animate: true,
-          dialogue: ["...", "Hey mister, have you seen my Doggochu?"],
-        })
-      );
-    else if (val === 1031)
-      characters.push(
-        new Character({
-          pos: {
-            x: j * Boundary.width + offset.x,
-            y: i * Boundary.height + offset.y,
-          },
-          img: oldManImg,
-          frames: {
-            max: 4,
-            hold: 60,
-          },
-          scale: 3,
-          dialogue: ["...", "My bones hurt."],
-        })
-      );
-  });
-});
-
-// check if obj1 is colliding with obj2
-const colliding = ({ obj1, obj2 }) => {
-  return (
-    obj1.pos.x + obj1.width >= obj2.pos.x &&
-    obj1.pos.x <= obj2.pos.x + obj2.width &&
-    obj1.pos.y <= obj2.pos.y + obj2.height &&
-    obj1.pos.y + obj1.height >= obj2.pos.y
-  );
-};
-
 // array of movables objects
-const movables = [
+const movables = [bg, ...boundaries, foreground, ...battleZones, ...characters];
+const renderables = [
   bg,
   ...boundaries,
-  foreground,
-  ...battleZonesArr,
+  ...battleZones,
   ...characters,
+  player,
+  foreground,
 ];
 
 export const battle = {
@@ -206,34 +99,30 @@ export const battle = {
 export function animate() {
   const animationId = window.requestAnimationFrame(animate);
 
-  bg.draw();
-  boundaries.forEach((b) => b.draw());
-  battleZonesArr.forEach((battleZoneArr) => {
-    battleZoneArr.draw();
+  renderables.forEach((r) => {
+    r.draw();
   });
-  player.draw();
-  foreground.draw();
 
   let moving = true;
   player.animate = false;
 
   if (battle.initiated) return;
 
-  //attiva battaglia
   if (keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed) {
-    for (const b of battleZonesArr) {
-      const overlappingArea =
-        (Math.min(player.pos.x + player.width, b.pos.x + b.width) -
-          Math.max(player.pos.x, b.pos.x)) *
-        (Math.min(player.pos.y + player.height, b.pos.y + b.height) -
-          Math.max(player.pos.y, b.pos.y));
+    //attiva battaglia
+    for (const b of battleZones) {
+      const overlappingArea = getOverlappingArea({
+        player,
+        battleZone: b,
+      });
+
       if (
         colliding({
           obj1: player,
           obj2: { ...b, pos: { ...b.pos, y: b.pos.y + MOVEOFFSET } },
         }) &&
         overlappingArea > (player.width * player.height) / 2 &&
-        Math.random() < 0.025
+        Math.random() < SPAWNRATE
       ) {
         //disattivazione animazione
         window.cancelAnimationFrame(animationId);
@@ -352,13 +241,17 @@ export function animate() {
 }
 
 animate();
-// initBattle();
-// animateBattle();
 
 // check for key press and set movement on keydown (animate)
 let lastKey = "";
 window.addEventListener("keydown", (e) => {
-  const key = e.key;
+  const mapArrow = {
+    ArrowUp: "w",
+    ArrowDown: "s",
+    ArrowLeft: "a",
+    ArrowRight: "d",
+  };
+  const key = e.key.startsWith("Arrow") ? mapArrow[e.key] : e.key;
 
   if (key in keys) {
     keys[key].pressed = true;
@@ -368,7 +261,13 @@ window.addEventListener("keydown", (e) => {
 
 // reset on key up
 window.addEventListener("keyup", (e) => {
-  const key = e.key;
+  const mapArrow = {
+    ArrowUp: "w",
+    ArrowDown: "s",
+    ArrowLeft: "a",
+    ArrowRight: "d",
+  };
+  const key = e.key.startsWith("Arrow") ? mapArrow[e.key] : e.key;
 
   if (key in keys) keys[key].pressed = false;
 });
