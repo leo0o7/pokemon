@@ -74,11 +74,26 @@ body > div{
           left: 0;
           opacity: 0;
           pointer-events: none;
-          z-index: 10;
-        "
+          z-index: 10;"
       ></div>
             
       <canvas style="position: absolute; left: 50%; top: 50%;  transform: translate(-50%, -50%); box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; border: 1px solid black"></canvas>
+
+      <div
+        id="characterDialogueBox"
+        style="background-color: white;
+          height: 140px;
+          position: absolute; 
+          left: 50%; 
+          /* 50% + (576 / 2) - (140 / 2) px  */
+          /* center + half of canvas - half of character dialogue box */
+          top: calc(50% + 218px);  
+          transform: translate(-50%, -50%);
+          width: 1024px;
+          border-top: 4px black solid;
+          display: none;
+          padding: 12px;"
+      ></div>
 
       <div id="userInterface" style="display: none; position: absolute; left: 50%; top: 50%;  transform: translate(-50%, -50%); width: 1024px; height: 576px;">
 

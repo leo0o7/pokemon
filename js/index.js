@@ -1,13 +1,14 @@
-import { Sprite } from "./classes.js";
+import { Player, Sprite } from "./classes.js";
 import { animateBattle } from "./battleScene.js";
 import { initBattle } from "./battleScene.js";
-import { audio } from "./audio.js";
+import { audio } from "./data/audio.js";
 import {
   colliding,
   getBattleZones,
   getBoundaries,
   getCharacters,
   getOverlappingArea,
+  updateInteractionAsset,
 } from "./utils.js";
 import {
   backgroundImage,
@@ -36,7 +37,8 @@ const MOVEOFFSET = 3;
 // create arrays of movable objects
 const battleZones = getBattleZones();
 const boundaries = getBoundaries();
-const characters = getCharacters();
+// create characters and update boundaries with characters positions
+const characters = getCharacters(boundaries);
 
 // key object for event listener
 const keys = {
@@ -61,7 +63,7 @@ const foreground = new Sprite({
   },
   img: foregroundImage,
 });
-const player = new Sprite({
+const player = new Player({
   pos: {
     x: CENTER.x - playerImages.down.width / 8,
     y: CENTER.y - playerImages.down.height / 2,
@@ -161,6 +163,13 @@ export function animate() {
   if (keys.w.pressed && lastKey === "w") {
     player.animate = true;
     player.img = player.sprites.up;
+
+    updateInteractionAsset({
+      characters,
+      player,
+      characterOffset: { x: 0, y: 3 },
+    });
+
     for (const b of boundaries) {
       if (
         colliding({
@@ -181,6 +190,13 @@ export function animate() {
   if (keys.a.pressed && lastKey === "a") {
     player.animate = true;
     player.img = player.sprites.left;
+
+    updateInteractionAsset({
+      characters,
+      player,
+      characterOffset: { x: 3, y: 0 },
+    });
+
     for (const b of boundaries) {
       if (
         colliding({
@@ -201,6 +217,13 @@ export function animate() {
   if (keys.s.pressed && lastKey === "s") {
     player.animate = true;
     player.img = player.sprites.down;
+
+    updateInteractionAsset({
+      characters,
+      player,
+      characterOffset: { x: 0, y: -3 },
+    });
+
     for (const b of boundaries) {
       if (
         colliding({
@@ -221,6 +244,13 @@ export function animate() {
   if (keys.d.pressed && lastKey === "d") {
     player.animate = true;
     player.img = player.sprites.right;
+
+    updateInteractionAsset({
+      characters,
+      player,
+      characterOffset: { x: -3, y: 0 },
+    });
+
     for (const b of boundaries) {
       if (
         colliding({
@@ -242,15 +272,44 @@ export function animate() {
 
 animate();
 
-// check for key press and set movement on keydown (animate)
 let lastKey = "";
 window.addEventListener("keydown", (e) => {
+  if (player.isInteracting) {
+    // go to the next dialogue line
+    const { dialogueIndex, dialogues } = player.interactionAsset;
+    if (e.key === " ") player.interactionAsset.dialogueIndex++;
+
+    if (dialogueIndex <= dialogues.length - 1) {
+      document.querySelector("#characterDialogueBox").innerHTML =
+        dialogues[dialogueIndex];
+      return;
+    }
+    // conversation is finished
+    player.isInteracting = false;
+    player.interactionAsset.dialogueIndex = 0;
+    document.querySelector("#characterDialogueBox").style.display = "none";
+
+    return;
+  }
+
+  if (e.key === " ") {
+    if (!player.interactionAsset) return;
+
+    // start conversation
+    player.isInteracting = true;
+    document.querySelector("#characterDialogueBox").style.display = "flex";
+    document.querySelector("#characterDialogueBox").innerHTML =
+      player.interactionAsset.dialogues[0];
+  }
+
+  // check for key press and set movement on keydown (animate)
   const mapArrow = {
     ArrowUp: "w",
     ArrowDown: "s",
     ArrowLeft: "a",
     ArrowRight: "d",
   };
+
   const key = e.key.startsWith("Arrow") ? mapArrow[e.key] : e.key;
 
   if (key in keys) {

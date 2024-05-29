@@ -1,4 +1,4 @@
-import { charactersMapData } from "./characters.js";
+import { charactersMapData } from "./data/characters.js";
 import { Boundary, Character } from "./classes.js";
 import { battleZones } from "./data/battleZone.js";
 import { collisions } from "./data/collisions.js";
@@ -28,6 +28,32 @@ export const getOverlappingArea = ({ player, battleZone }) => {
     ) -
       Math.max(player.pos.y, battleZone.pos.y))
   );
+};
+
+export const updateInteractionAsset = ({
+  characters,
+  player,
+  characterOffset = { x: 0, y: 0 },
+}) => {
+  player.interactionAsset = null;
+  // check for collision
+  for (const char of characters) {
+    if (
+      colliding({
+        obj1: player,
+        obj2: {
+          ...char,
+          pos: {
+            x: char.pos.x + characterOffset.x,
+            y: char.pos.y + characterOffset.y,
+          },
+        },
+      })
+    ) {
+      player.interactionAsset = char;
+      break;
+    }
+  }
 };
 
 export const getBoundaries = () => {
@@ -80,7 +106,7 @@ export const getBattleZones = () => {
   return battleZonesArr;
 };
 
-export const getCharacters = () => {
+export const getCharacters = (boundaries) => {
   // images
   const villagerImg = new Image();
   villagerImg.src = "./img/villager/Idle.png";
@@ -107,8 +133,7 @@ export const getCharacters = () => {
               hold: 60,
             },
             scale: 3,
-            animate: true,
-            dialogue: ["...", "Hey mister, have you seen my Doggochu?"],
+            dialogues: ["...", "Hey mister, have you seen my Doggochu?"],
           })
         );
       else if (val === 1031)
@@ -124,9 +149,19 @@ export const getCharacters = () => {
               hold: 60,
             },
             scale: 3,
-            dialogue: ["...", "My bones hurt."],
+            dialogues: ["...", "My bones hurt."],
           })
         );
+      if (val !== 0) {
+        boundaries.push(
+          new Boundary({
+            pos: {
+              x: j * Boundary.width + OFFSET.x,
+              y: i * Boundary.height + OFFSET.y,
+            },
+          })
+        );
+      }
     });
   });
   return characters;

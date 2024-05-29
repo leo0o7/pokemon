@@ -1,6 +1,6 @@
 import { c } from "./index.js";
 import {} from "./battleScene.js";
-import { audio } from "./audio.js";
+import { audio } from "./data/audio.js";
 
 export class Sprite {
   constructor({
@@ -9,35 +9,63 @@ export class Sprite {
     frames = { max: 1, hold: 10 },
     sprites,
     animate = false,
+    scale = 1,
+    rotation = 0,
   }) {
     this.pos = pos;
     this.img = new Image();
     this.frames = { ...frames, val: 0, elapsed: 0 };
     this.img.onload = () => {
-      this.width = this.img.width / this.frames.max;
-      this.height = this.img.height;
+      this.width = (this.img.width / this.frames.max) * scale;
+      this.height = this.img.height * scale;
     };
     this.img.src = img.src;
 
     this.animate = animate;
     this.sprites = sprites;
+    this.scale = scale;
+    this.rotation = rotation;
     this.opacity = 1;
   }
   draw() {
     c.save();
+    c.translate(this.pos.x + this.width / 2, this.pos.y + this.height / 2);
+    c.rotate(this.rotation);
+    c.translate(-this.pos.x - this.width / 2, -this.pos.y - this.height / 2);
     c.globalAlpha = this.opacity;
+
+    const crop = {
+      pos: {
+        x: this.frames.val * (this.width / this.scale),
+        y: 0,
+      },
+      width: this.img.width / this.frames.max,
+      height: this.img.height,
+    };
+
+    const image = {
+      pos: {
+        x: this.pos.x,
+        y: this.pos.y,
+      },
+      width: this.img.width / this.frames.max,
+      height: this.img.height,
+    };
+
     c.drawImage(
       this.img,
-      this.frames.val * this.width,
-      0,
-      this.img.width / this.frames.max,
-      this.img.height,
-      this.pos.x,
-      this.pos.y,
-      this.img.width / this.frames.max,
-      this.img.height
+      crop.pos.x,
+      crop.pos.y,
+      crop.width,
+      crop.height,
+      image.pos.x,
+      image.pos.y,
+      image.width * this.scale,
+      image.height * this.scale
     );
+
     c.restore();
+
     if (!this.animate) return;
 
     if (this.frames.max > 1) this.frames.elapsed++;
@@ -48,6 +76,32 @@ export class Sprite {
     }
   }
 }
+export class Player extends Sprite {
+  constructor({
+    pos,
+    img,
+    frames = { max: 1, hold: 10 },
+    sprites,
+    animate = false,
+    scale = 1,
+    rotation = 0,
+    interactionAsset = null,
+    isInteracting = false,
+  }) {
+    super({
+      pos,
+      img,
+      frames,
+      sprites,
+      animate,
+      scale,
+      rotation,
+    });
+    this.interactionAsset = interactionAsset;
+    this.isInteracting = isInteracting;
+  }
+}
+
 export class Monster extends Sprite {
   constructor({
     pos,
@@ -55,7 +109,6 @@ export class Monster extends Sprite {
     frames = { max: 1, hold: 10 },
     sprites,
     animate = false,
-
     isEnemy = false,
     name,
     attacks,
@@ -208,7 +261,7 @@ export class Character extends Sprite {
     animate = false,
     rotation = 0,
     scale = 1,
-    dialogue = [""],
+    dialogues = [""],
   }) {
     super({
       pos,
@@ -221,7 +274,7 @@ export class Character extends Sprite {
       scale,
     });
 
-    this.dialogue = dialogue;
+    this.dialogues = dialogues;
     this.dialogueIndex = 0;
   }
 }

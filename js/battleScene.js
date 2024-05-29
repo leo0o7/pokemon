@@ -2,6 +2,7 @@ import { attacks } from "./data/attacks.js";
 import { monsters } from "./data/monsters.js";
 import { Monster } from "./classes.js";
 import { animate, battle, battleBackground } from "./index.js";
+import { audio } from "./data/audio.js";
 
 let draggle;
 let emby;
@@ -32,6 +33,7 @@ export function initBattle() {
     button.innerHTML = attack.name;
     document.querySelector("#attacksBox").append(button);
   });
+
   document.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", (e) => {
       const selectedAttack = attacks[e.currentTarget.innerHTML];
@@ -42,7 +44,6 @@ export function initBattle() {
         recipient: draggle,
         renderedSprites,
       });
-      console.log(draggle.health);
 
       if (draggle.health <= 0) {
         queue.push(() => {

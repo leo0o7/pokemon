@@ -6,7 +6,7 @@ backgroundImage.src = "./img/Pellet Town.png";
 export const foregroundImage = new Image();
 foregroundImage.src = "./img/foregroundObjects.png";
 export const playerImages = {
-  up: new Image(),
+  up: new Image(), // document.createElement("img")
   down: new Image(),
   left: new Image(),
   right: new Image(),
