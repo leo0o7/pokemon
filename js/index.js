@@ -28,8 +28,8 @@ c.fillRect(0, 0, canvas.width, canvas.height);
 // create constants
 const CENTER = { x: canvas.width / 2, y: canvas.height / 2 };
 export const OFFSET = {
-  x: -735,
-  y: -620,
+  x: -712,
+  y: -610,
 };
 const SPAWNRATE = 0.025;
 const MOVEOFFSET = 3;
